@@ -1,0 +1,29 @@
+---
+
+- name: Configure Site 5 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S5_Mgmt
+      vlan_id: 501
+      state: active
+    - name: S5_Inline
+      vlan_id: 502
+      state: active
+    - name: S5_Cameras
+      vlan_id: 503
+      state: active
+    - name: S5_WAPs
+      vlan_id: 504
+      state: active
+    - name: S5_Phones
+      vlan_id: 507
+      state: active
+    - name: JS_Relay
+      vlan_id: 508
+      state: active
+    - name: S5_Guest
+      vlan_id: 516
+      state: active
+    state: overridden
+
+...

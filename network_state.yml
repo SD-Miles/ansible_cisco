@@ -1,0 +1,20 @@
+---
+
+# Apply roles to the appropriate host groups
+- hosts: all
+  roles:
+    - global
+
+- hosts: switches,s0-core
+  roles:
+    - global_switch
+
+- hosts: switches
+  roles:
+    - access_switch
+
+- hosts: distro_switches
+  roles:
+    - distro_switch
+
+...

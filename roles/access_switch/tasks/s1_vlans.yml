@@ -1,0 +1,32 @@
+---
+
+- name: Configure Site 1 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S1_Mgmt
+      vlan_id: 101
+      state: active
+    - name: S1_Inline
+      vlan_id: 102
+      state: active
+    - name: S1_Cameras
+      vlan_id: 103
+      state: active
+    - name: S1_WAPs
+      vlan_id: 104
+      state: active
+    - name: S1_Imaging
+      vlan_id: 105
+      state: active
+    - name: S1_Phones
+      vlan_id: 107
+      state: active
+    - name: S1_Relay
+      vlan_id: 108
+      state: active
+    - name: S1_Guest
+      vlan_id: 116
+      state: active
+    state: overridden
+
+...

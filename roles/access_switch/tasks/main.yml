@@ -1,0 +1,44 @@
+---
+
+# Configure VTP on all switches
+- name: Configure VTP
+  import_tasks: vtp.yml
+
+# Configure building vlans according to switch host groups
+- name: Configure Site 1 VLANs
+  import_tasks: s1_vlans.yml
+  when: inventory_hostname in groups["site1_switches"]
+
+- name: Configure Site 2 VLANs
+  import_tasks: s2_vlans.yml
+  when: inventory_hostname in groups["site2_switches"]
+
+- name: Configure Site 3 VLANs
+  import_tasks: s3_vlans.yml
+  when: inventory_hostname in groups["site3_switches"]
+
+- name: Configure Site 4 VLANs
+  import_tasks: s4_vlans.yml
+  when: inventory_hostname in groups["site4_switches"]
+
+- name: Configure Site 5 VLANs
+  import_tasks: s5_vlans.yml
+  when: inventory_hostname in groups["site5_switches"]
+
+- name: Configure Site 6 VLANs
+  import_tasks: s6_vlans.yml
+  when: inventory_hostname in groups["site6_switches"]
+
+# Configure DHCP snooping on all access switches
+- name: Configure DHCP snooping
+  import_tasks: dhcp_snooping.yml
+
+# Save config after all tasks have been applied
+- name: Save config
+  cisco.ios.ios_command:
+    commands:
+      - command: 'write memory'
+        prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+        answer: "\r"
+
+...

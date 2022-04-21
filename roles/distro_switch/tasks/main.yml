@@ -1,0 +1,30 @@
+---
+# Distribution layer configuration
+
+- name: Register VLANs
+  import_tasks: register_vlans.yml
+
+- name: Remove ACLs from VLAN interfaces
+  import_tasks: remove_acls.yml
+
+- name: Define network objects
+  import_tasks: network_objects.yml
+
+- name: Define service objects
+  import_tasks: service_objects.yml
+
+- name: Define ACLs
+  import_tasks: define_acls.yml
+
+- name: Apply ACLs to VLAN interfaces
+  import_tasks: apply_acls.yml
+
+# Save config after all tasks have been applied
+- name: Save config
+  cisco.ios.ios_command:
+    commands:
+      - command: 'write memory'
+        prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+        answer: "\r"
+
+...

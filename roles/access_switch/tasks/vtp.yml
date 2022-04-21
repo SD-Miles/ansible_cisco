@@ -1,0 +1,7 @@
+---
+
+- name: Set VTP mode to transparent
+  cisco.ios.ios_config:
+    lines: vtp mode transparent
+
+...

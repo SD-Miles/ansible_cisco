@@ -1,0 +1,129 @@
+---
+# Upgrade IOS for single or stacked switches.
+
+- name: Upgrade Cisco IOS Switch Stack
+  hosts: switches
+  gather_facts: false
+  connection: network_cli
+
+# Set these variables for your specific upgrade scenario.
+  vars:
+    compliant_ios_version: 15.2(7)E2
+    ios_bundle: c2960x-universalk9-tar.152-7.E2.tar
+    ios_directory: c2960x-universalk9-mz.152-7.E2
+    models:
+      "WS-C2960X-48FPD-L":
+      "WS-C2960X-48FPS-L":
+      "WS-C2960X-24PD-L":
+      "WS-C2960X-24PS-L":
+
+  tasks:
+    - name: Gather hardware facts before doing anything
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+
+    - name: Register the current boot variable
+      cisco.ios.ios_command:
+        commands: 'show boot | include BOOT'
+      register: bootvar
+      when:
+        - models[ansible_net_model] is defined
+        - ansible_net_version != compliant_ios_version
+
+# **** BEGIN TASK BLOCK ****
+# The conditions to run this block are in the "when" parameters at the bottom
+# of the block.
+
+    - name: Upgrade IOS if non-compliant
+      block:
+        - name: Register the flash contents before transferring the tarball
+          cisco.ios.ios_command:
+            commands: 'show flash:'
+          register: dir_flashpre
+
+        # Adjust this number to the tarball size.
+        - name: Assert that there is enough flash space for the tarball transfer
+          assert:
+            that:
+              - ansible_net_filesystems_info['flash:']['spacefree_kb'] > 42000
+            msg: "There is not enough space on the device's flash."
+          when:
+            - 'ios_bundle|string not in dir_flashpre.stdout[0]'
+            - 'ios_directory|string not in dir_flashpre.stdout[0]'
+
+        # You need to place the IOS bundle in the Apache root directory and manually start
+        # Apache on this server before the transfer will work. Do NOT configure Apache to
+        # start automatically, as the IOS images do not require authentication to download.
+        - name: Copy the IOS tarball to switch
+          cisco.ios.ios_command:
+            commands:
+              - command: 'copy http://ansible/{{ ios_bundle }} flash:/'
+                prompt: 'Destination filename \[{{ ios_bundle }}\]?'
+                answer: "\r"
+          when:
+            - 'ios_bundle|string not in dir_flashpre.stdout[0]'
+          vars:
+            ansible_command_timeout: 1800
+
+        - name: Gather hardware facts after the tarball transfer
+          cisco.ios.ios_facts:
+            gather_subset: hardware
+
+        - name: Register the flash contents after the tarball transfer
+          cisco.ios.ios_command:
+            commands: 'show flash:'
+          register: dir_flashpost
+
+        - name: Assert that the transfer completed
+          assert:
+            that:
+              - '"{{ ios_bundle }}" in dir_flashpost.stdout[0]'
+
+        # Adjust this number to the size of the extracted directory and its contents
+        - name: Assert that there is enough flash space to extract the tarball
+          assert:
+            that:
+              - ansible_net_filesystems_info['flash:']['spacefree_kb'] > 27000
+            msg: "There is not enough space on the device's flash."
+          when:
+            - 'ios_directory|string not in dir_flashpost.stdout[0]'
+
+        - name: Save config
+          cisco.ios.ios_command:
+            commands:
+              - command: 'write memory'
+                prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+                answer: "\r" 
+
+        - name: Extract the tarball, update the boot path, and reload
+          cisco.ios.ios_command:
+            commands: 'archive download-sw /reload flash:/{{ ios_bundle }}'
+          vars:
+            ansible_command_timeout: 7200
+
+        - name: Wait for the device to return
+          wait_for:
+            host: "{{ inventory_hostname }}"
+            port: 22
+            timeout: 1800
+          delegate_to: localhost
+
+        # The following two tasks have been removed because of a bug which caused the
+        # ios_facts module to throw a traceback error after target switch reloads  
+#       - name: Gather hardware facts after the reload
+#         ios_facts:
+#           gather_subset: hardware
+
+#       - name: Assert that the device has booted to the new IOS version
+#         assert:
+#           that:
+#             - ansible_net_version == compliant_ios_version
+
+      when:
+        - models[ansible_net_model] is defined
+        - ansible_net_version != compliant_ios_version
+        - 'ios_bundle|string not in bootvar.stdout[0]'
+
+# **** END TASK BLOCK ****
+
+...

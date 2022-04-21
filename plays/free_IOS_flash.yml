@@ -1,0 +1,114 @@
+---
+# Free space on IOS flash storage after an upgrade.
+
+- name: Clear Space on IOS Flash
+  hosts: switches
+  gather_facts: false
+  connection: network_cli
+
+# Set these variables for your specific upgrade scenario.
+  vars:
+    old_iosbin: c2960x-universalk9-tar.152-7.E2.tar
+    old_iosver: 15.2(4)E6
+    models:
+      "WS-C2960X-48FPD-L":
+      "WS-C2960X-48FPS-L":
+      "WS-C2960X-24PD-L":
+      "WS-C2960X-24PS-L":
+
+  tasks:
+    - name: Gather hardware facts before doing anything
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+
+    - name: Register the switch stack information as a variable
+      cisco.ios.ios_command:
+        commands: 'show switch'
+      register: stack
+
+# **** BEGIN TASK BLOCK ****
+# The conditions to run this block are in the "when" parameters at the bottom
+# of the block.
+
+    - name: Delete the old IOS binary if it is not the running version
+      block:
+        
+        # Create a variable for the contents of each switch's flash
+        - name: Register the contents of flash1:/
+          cisco.ios.ios_command:
+            commands: 'show flash1:'
+          register: dir_flash
+
+        - name: Register the contents of flash2:/
+          cisco.ios.ios_command:
+            commands: 'show flash2:'
+          register: dir_flash2
+          when: '"2       Member" in stack.stdout[0]'
+
+        - name: Register the contents of flash3:/
+          cisco.ios.ios_command:
+            commands: 'show flash3:'
+          register: dir_flash3
+          when: '"3       Member" in stack.stdout[0]'
+
+        - name: Register the contents of flash4:/
+          cisco.ios.ios_command:
+            commands: 'show flash4:'
+          register: dir_flash4
+          when: '"4       Member" in stack.stdout[0]'
+
+        # Delete the target IOS binary from each switch's flash
+        - name: Delete target bin from switch 1
+          cisco.ios.ios_command:
+            commands:
+              - command: 'delete flash1:/{{ old_iosbin }}'
+                prompt:
+                  - 'Delete filename \[{{ old_iosbin }}\]?'
+                  - 'Delete flash1:/{{ old_iosbin }}?'
+                answer: "\r"
+          when:
+            - 'old_iosbin|string in dir_flash.stdout[0]'
+    
+        - name: Delete target bin from switch 2
+          cisco.ios.ios_command:
+            commands:
+              - command: 'delete flash2:/{{ old_iosbin }}'
+                prompt:
+                  - 'Delete filename \[{{ old_iosbin }}\]?'
+                  - 'Delete flash2:/{{ old_iosbin }}?'
+                answer: "\r"
+          when:
+            - '"2       Member" in stack.stdout[0]'
+            - 'old_iosbin|string in dir_flash2.stdout[0]'
+    
+        - name: Delete target bin from switch 3
+          cisco.ios.ios_command:
+            commands:
+              - command: 'delete flash3:/{{ old_iosbin }}'
+                prompt:
+                  - 'Delete filename \[{{ old_iosbin }}\]?'
+                  - 'Delete flash3:/{{ old_iosbin }}?'
+                answer: "\r"
+          when:
+            - '"3       Member" in stack.stdout[0]'
+            - 'old_iosbin|string in dir_flash3.stdout[0]'
+    
+        - name: Delete target bin from switch 4
+          cisco.ios.ios_command:
+            commands:
+              - command: 'delete flash4:/{{ old_iosbin }}'
+                prompt:
+                  - 'Delete filename \[{{ old_iosbin }}\]?'
+                  - 'Delete flash4:/{{ old_iosbin }}?'
+                answer: "\r"
+          when:
+            - '"4       Member" in stack.stdout[0]'
+            - 'old_iosbin|string in dir_flash4.stdout[0]'
+
+      when:
+        - ansible_net_version != old_iosver
+        - models[ansible_net_model] is defined
+
+# **** END TASK BLOCK ****
+
+...

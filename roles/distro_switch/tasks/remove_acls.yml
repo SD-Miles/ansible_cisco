@@ -1,0 +1,33 @@
+---
+
+- name: Remove ACL from Guest VLAN
+  cisco.ios.ios_config:
+    lines: no ip access-group Guest-ACL in
+    parents: interface Vlan{{ guest_vlan.stdout[0].split()[0] }}
+    match: exact
+
+- name: Remove ACL from Camera VLAN
+  cisco.ios.ios_config:
+    lines: no ip access-group Security-Cameras-ACL out
+    parents: interface Vlan{{ camera_vlan.stdout[0].split()[0] }}
+    match: exact
+
+- name: Remove ACL from Relay VLAN
+  cisco.ios.ios_config:
+    lines: no ip access-group Production-ACL in
+    parents: interface Vlan{{ relay_vlan.stdout[0].split()[0] }}
+    match: exact
+
+- name: Remove ACL from Inline VLAN
+  cisco.ios.ios_config:
+    lines: no ip access-group Production-ACL in
+    parents: interface Vlan{{ inline_vlan.stdout[0].split()[0] }}
+    match: exact
+
+- name: Remove ACL from Mgmt VLAN
+  cisco.ios.ios_config:
+    lines: no ip access-group BldgMgmt-ACL in
+    parents: interface Vlan{{ mgmt_vlan.stdout[0].split()[0] }}
+    match: exact
+
+...

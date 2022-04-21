@@ -1,0 +1,102 @@
+---
+# Upgrade IOS-XE for single or stacked switches.
+
+- name: Upgrade Cisco IOS-XE Switch Stack
+  hosts: all
+  gather_facts: false
+  connection: network_cli
+
+# Set these variables for your specific upgrade scenario.
+  vars:
+    compliant_ios_version: 16.12.04
+    ios_image: cat9k_lite_iosxe.16.12.04.SPA.bin
+    models:
+      "C9200L-24P-4X":
+      "C9200L-48P-4X":
+
+  tasks:
+    - name: Gather hardware facts before doing anything
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+
+# **** BEGIN UPGRADE BLOCK ****
+# The conditions to run this block are in the "when" parameters at the bottom
+# of the block.
+
+    - name: Upgrade IOS-XE if non-compliant
+      block:
+        - name: Register the flash contents before transferring the image
+          cisco.ios.ios_command:
+            commands: 'show flash:'
+          register: dir_flashpre
+
+        # Adjust this number to the image size.
+        - name: Assert that there is enough flash space for the image
+          assert:
+            that:
+              - ansible_net_filesystems_info['flash:']['spacefree_kb'] > 426500
+            msg: "There is not enough space on the device's flash."
+          when:
+            - 'ios_image|string not in dir_flashpre.stdout[0]'
+
+        # You need to place the IOS bundle in the Apache root directory and manually start
+        # Apache on this server before the transfer will work. Do NOT configure Apache to
+        # start automatically, as the IOS images do not require authentication to download.
+        - name: Download and install the new image
+          cisco.ios.ios_command:
+            commands:
+              - command: 'install add file http://ansible/{{ ios_image }} activate commit prompt-level none'
+          when:
+            - 'ios_image|string not in dir_flashpre.stdout[0]'
+          vars:
+            ansible_command_timeout: 1800
+
+        - name: Pause to give the device a chance to reboot
+          pause:
+            minutes: 1
+
+        - name: Wait for the device to return
+          wait_for:
+            host: "{{ inventory_hostname }}"
+            port: 22
+            timeout: 1800
+          delegate_to: localhost
+
+      when:
+        - models[ansible_net_model] is defined
+        - ansible_net_version != compliant_ios_version
+# **** END UPGRADE BLOCK ****
+
+    - name: Gather hardware facts after the reload
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+
+    - name: Assert that the device has booted to the new IOS version
+      assert:
+        that:
+          - ansible_net_version == compliant_ios_version
+        msg: "The upgrade was NOT successful. The switch has booted into the previous IOS-XE version."
+
+# **** BEGIN CLEANUP BLOCK ****
+    - name: Cleanup device after successful upgrade
+      block:
+        - name: Remove the inactive software packages
+          cisco.ios.ios_command:
+            commands:
+              - command: 'install remove inactive'
+                prompt: 'Do you want to remove the above files\? \[y/n\]'
+                answer: y
+          vars:
+            ansible_command_timeout: 240
+
+        - name: Save config
+          cisco.ios.ios_command:
+            commands:
+              - command: 'write memory'
+                prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+                answer: "\r"
+
+      when: models[ansible_net_model] is defined
+# **** END CLEANUP BLOCK ****
+
+...

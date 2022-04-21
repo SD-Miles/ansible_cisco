@@ -1,0 +1,29 @@
+---
+
+- name: Configure Site 2 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S2_Mgmt
+      vlan_id: 201
+      state: active
+    - name: S2_Inline
+      vlan_id: 202
+      state: active
+    - name: S2_Cameras
+      vlan_id: 203
+      state: active
+    - name: S2_WAPs
+      vlan_id: 204
+      state: active
+    - name: S2_Phones
+      vlan_id: 207
+      state: active
+    - name: JS_Relay
+      vlan_id: 208
+      state: active
+    - name: S2_Guest
+      vlan_id: 216
+      state: active
+    state: overridden
+
+...

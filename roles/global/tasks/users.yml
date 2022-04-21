@@ -1,0 +1,37 @@
+---
+
+- name: NON-IDEMPOTENT - Configure user ansible
+  cisco.ios.ios_user:
+    name: ansible
+    password_type: secret
+    sshkey: "{{ lookup('file', 'ansible_rsa.pub') }}"
+    privilege: 15
+
+- name: NON-IDEMPOTENT - Configure example user 1
+  cisco.ios.ios_user:
+    name: user1
+    sshkey: "{{ lookup('file', 'user1_rsa.pub') }}"
+    privilege: 15
+
+- name: NON-IDEMPOTENT - Configure example user 2
+  cisco.ios.ios_user:
+    name: user2
+    sshkey: "{{ lookup('file', 'user2_rsa.pub') }}"
+    privilege: 15
+
+- name: NON-IDEMPOTENT - Configure example user 3
+  cisco.ios.ios_user:
+    name: user3
+    sshkey: "{{ lookup('file', 'user3_rsa.pub') }}"
+    privilege: 15
+
+- name: Delete all local users except those listed
+  cisco.ios.ios_user:
+    aggregate:
+    - name: ansible
+    - name: user1
+    - name: user2
+    - name: user3
+    purge: yes
+
+...

@@ -1,0 +1,71 @@
+all:
+  vars:
+    ansible_connection: network_cli
+    ansible_network_os: ios
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: ansible
+  hosts:
+    s0-core:
+  children:
+    voice_gateways:
+      hosts:
+        s1-mdf-vg:
+        s2-mdf-vg:
+        s3-mdf-vg:
+        s4-mdf-vg:
+        s5-idfa-vg:
+    switches:
+      children:
+        distro_switches:
+          hosts:
+            s1-mdf-sw1:
+            s2-mdf-sw1:
+            s3-mdf-sw1:
+            s4-mdf-sw1:
+            s5-mdf-sw1:
+            s6-b1-sw1:
+        site1_switches:
+          hosts:
+            s1-mdf-sw1:
+            s1-idfa-sw1:
+            s1-idfb-sw1:
+            s1-idfc-sw1:
+            s1-idfd-sw1:
+            s1-idfe-sw1:
+            s1-idff-sw1:
+            s1-idfg-sw1:
+            s1-idfh-sw1:
+            s1-idfi-sw1:
+            s1-idfj-sw1:
+        site2_switches:
+          hosts:
+            s2-mdf-sw1:
+            s2-mdf-sw2:
+            s2-idf-sw1:
+            s2-idf-sw2:
+        site3_switches:
+          hosts:
+            s3-mdf-sw1:
+            s3-mdf-sw2:
+            s3-idf-sw1:
+            s3-idf-sw2:
+        site4_switches:
+          hosts:
+            s4-mdf-sw1:
+            s4-idfa-sw1:
+            s4-idfb-sw1:
+            s4-idfc-sw1:
+        site5_switches:
+          hosts:
+            s5-mdf-sw1:
+            s5-mdf-sw2:
+            s5-idfa-sw1:
+            s5-idfa-sw2:
+            s5-idfb-sw1:
+            s5-idfb-sw2:
+        site6_switches:
+          hosts:
+            s6-b1-sw1:
+            s6-b2-sw1:
+            

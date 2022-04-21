@@ -1,0 +1,29 @@
+---
+
+- name: Configure Site 3 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S3_Mgmt
+      vlan_id: 301
+      state: active
+    - name: S3_Inline
+      vlan_id: 302
+      state: active
+    - name: S3_Cameras
+      vlan_id: 303
+      state: active
+    - name: S3_WAPs
+      vlan_id: 304
+      state: active
+    - name: S3_Phones
+      vlan_id: 307
+      state: active
+    - name: S3_Relay
+      vlan_id: 308
+      state: active
+    - name: S3_Guest
+      vlan_id: 316
+      state: active
+    state: overridden
+
+...

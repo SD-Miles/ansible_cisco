@@ -1,0 +1,21 @@
+---
+# Backup all network hardware configurations.
+# This playbook runs nightly via a cron task.
+
+- name: Backup Switch/Router Configurations
+  connection: network_cli
+  gather_facts: true
+  hosts: all
+
+  tasks:
+    - name: Show the running configuration
+      ios_command:
+        commands: show running-config
+      register: config
+
+    - name: Save output to /home/ansibleadmin/cisco/backups/
+      copy:
+        content: "{{config.stdout[0]}}"
+        dest: /home/ansibleadmin/cisco/backups/{{inventory_hostname}}.txt
+
+...

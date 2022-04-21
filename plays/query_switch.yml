@@ -1,0 +1,26 @@
+---
+# Basic information query/connectivity test for switches.
+
+- name: Display Network Hardware Information
+  connection: network_cli
+  gather_facts: false
+  hosts: switches,!s2-idf-sw1
+  tasks:
+
+    - name: Get config for IOS devices
+      ios_facts:
+        gather_subset: all
+
+    - name: Display the hardware model
+      debug:
+        msg: 
+          - "Here is the information for {{ ansible_net_hostname }}"
+          - "  Model: {{ ansible_net_model }}"
+          - "  Stacked models: {{ ansible_net_stacked_models }}"
+          - "  Serial number: {{ ansible_net_serialnum }}"
+          - "  Stacked serial numbers: {{ ansible_net_stacked_serialnums }}"
+          - "  System: {{ ansible_net_system }}"
+          - "  IOS type: {{ ansible_net_iostype }}"
+          - "  Version: {{ ansible_net_version }}"
+
+...

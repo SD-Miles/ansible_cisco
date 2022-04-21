@@ -1,0 +1,29 @@
+---
+
+- name: Configure Site 6 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S6_Mgmt
+      vlan_id: 601
+      state: active
+    - name: S6_Inline
+      vlan_id: 602
+      state: active
+    - name: S6_Cameras
+      vlan_id: 603
+      state: active
+    - name: S6_WAPs
+      vlan_id: 604
+      state: active
+    - name: S6_Phones
+      vlan_id: 607
+      state: active
+    - name: S6_Relay
+      vlan_id: 608
+      state: active
+    - name: S6_Guest
+      vlan_id: 616
+      state: active
+    state: overridden
+
+...

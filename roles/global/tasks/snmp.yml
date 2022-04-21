@@ -1,0 +1,20 @@
+---
+
+- name: NON-IDEMPOTENT - Configure SNMP ACL
+  cisco.ios.ios_config:
+    lines: 10 permit 10.0.2.39
+    parents: ip access-list standard SNMP_ACL
+    before: no ip access-list standard SNMP_ACL
+    match: exact
+
+- name: NON-IDEMPOTENT - Configure SNMP v3 user
+  cisco.ios.ios_config:
+    lines: snmp-server user SNMP_User SNMP_GP v3 auth sha 9dz8nc5aXQxVgLWU priv aes 128 ru5WqwPntn2Qf8Z0
+
+- name: Configure SNMP v3 settings
+  cisco.ios.ios_config:
+    lines:
+      - snmp-server group SNMP_GP v3 priv access SNMP_ACL
+      - snmp-server enable traps snmp linkdown linkup coldstart warmstart
+
+...

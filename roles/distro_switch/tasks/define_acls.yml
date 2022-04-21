@@ -1,0 +1,133 @@
+---
+
+# Guest-ACL is configured incoming, and defines where guest traffic can go.
+- name: Define Guest-ACL
+  cisco.ios.ios_config:
+    lines:
+      # PERMIT DHCP solicitation
+      - permit udp any eq bootpc object-group Domain-Controllers-OGP eq bootps
+      # PERMIT DNS requests and dynamic updates
+      - permit object-group DNS-SGP any object-group Domain-Controllers-OGP
+      # PERMIT web ports to public AppServer01
+      - permit object-group Web-Services-SGP any host 10.0.2.123
+      # PERMIT web ports to public AppServer02
+      - permit object-group Web-Services-SGP any host 10.0.2.105
+      # PERMIT web ports to public AppServer03
+      - permit object-group Web-Services-SGP any host 10.0.2.48
+      # DENY all other access to internal networks
+      - deny   ip any 10.0.0.0 0.255.255.255
+      # PERMIT all other traffic
+      - permit ip any any
+    parents: ip access-list extended Guest-ACL
+    before: no ip access-list extended Guest-ACL
+    match: exact
+
+# Security-Cameras-ACL is configured outgoing, and defined what traffic can reach the cameras.
+- name: Define Security-Cameras-ACL
+  cisco.ios.ios_config:
+    lines:
+      # PERMIT all ICMP
+      - permit icmp any any
+      # PERMIT the servers subnet
+      - permit ip 10.0.2.0 0.0.0.255 any
+      # PERMIT the video archival subnet
+      - permit ip 10.0.3.0 0.0.0.255 any
+      # PERMIT the NTP server
+      - permit ip host 10.0.2.20 any
+      # PERMIT all voice and phone subnets for video/phone communications
+      - permit ip 10.0.4.0 0.0.0.255 any
+      - permit ip 10.0.5.0 0.0.0.255 any
+      - permit ip 10.0.6.0 0.0.0.255 any
+      - permit ip 10.10.7.0 0.0.0.255 any
+      - permit ip 10.20.7.0 0.0.0.255 any
+      - permit ip 10.30.7.0 0.0.0.255 any
+      - permit ip 10.40.7.0 0.0.0.255 any
+      - permit ip 10.50.7.0 0.0.0.255 any
+      - permit ip 10.60.7.0 0.0.0.255 any
+    parents: ip access-list extended Security-Cameras-ACL
+    before: no ip access-list extended Security-Cameras-ACL
+    match: exact
+
+# Production-ACL is configured incoming, and defines where production traffic can go.
+- name: Define Production-ACL
+  cisco.ios.ios_config:
+    lines:
+      # PERMIT all ICMP
+      - permit icmp any any
+      # PERMIT DHCP solicitation
+      - permit udp any eq bootpc object-group Domain-Controllers-OGP eq bootps
+      # PERMIT Active Directory client services to DCs
+      - permit object-group AD-Client-SGP any object-group Domain-Controllers-OGP
+      # PERMIT domain certificate enrollment services
+      - permit object-group Cert-Enrollment-SGP any host 10.0.2.58
+      # PERMIT WSUS
+      - permit tcp any host 10.0.2.30 eq 8530
+      - permit tcp any host 10.0.2.30 eq 8531
+      # PERMIT KMS enrollment services
+      - permit tcp any host 10.0.2.58 eq 1688
+      # PERMIT controlled access to administative hosts
+      - permit object-group Jumpbox-SGP any object-group Jumpboxes-OGP
+      # PERMIT NTP
+      - permit udp any host 10.0.2.20 eq ntp
+      # PERMIT SMB and IRemoteWinspool to print server
+      - permit object-group Print-Server-SGP any host 10.0.2.31
+      # PERMIT web ports to public AppServer01
+      - permit object-group Web-Services-SGP any host 10.0.2.123
+      # PERMIT web ports to public AppServer02
+      - permit object-group Web-Services-SGP any host 10.0.2.105
+      # PERMIT web ports to public AppServer03
+      - permit object-group Web-Services-SGP any host 10.0.2.48
+      # PERMIT web ports to internal AppServer04
+      - permit object-group Web-Services-SGP any host 10.0.2.131
+      # PERMIT web ports to internal AppServer05
+      - permit object-group Web-Services-SGP any host 10.0.2.44
+      # PERMIT web ports to public AppServer06
+      - permit object-group Web-Services-SGP any host 10.0.2.37
+      # PERMIT web ports and Samba to internal AppServer07
+      - permit object-group Web-Services-SGP any host 10.0.2.133
+      - permit tcp any host 10.0.2.133 eq 445
+      # PERMIT HTTPS to internal AppServer08
+      - permit tcp any host 10.0.2.17 eq 443
+      # PERMIT content service ports to internal AppServer09
+      - permit tcp any host 10.0.2.55 range 55222 55225
+      # PERMIT HTTP to internal AppServer10
+      - permit tcp any host 10.0.2.122 eq www
+      # DENY all other access to the servers subnet
+      - deny   ip any 10.0.2.0 0.0.0.255
+      # DENY access to UC management
+      - deny   ip any 10.0.4.0 0.0.0.255
+      # PERMIT all other traffic
+      - permit ip any any
+    parents: ip access-list extended Production-ACL
+    before: no ip access-list extended Production-ACL
+    match: exact
+
+# BldgMgmt-ACL is configured incoming, and defines where traffic from the management subnet can go.
+- name: Define BldgMgmt-ACL
+  cisco.ios.ios_config:
+    lines:
+      # PERMIT all ICMP
+      - permit icmp any any
+      # PERMIT DHCP solicitation
+      - permit udp any eq bootpc object-group Domain-Controllers-OGP eq bootps
+      # PERMIT DNS requests and dynamic updates
+      - permit object-group DNS-SGP any object-group Domain-Controllers-OGP
+      # PERMIT LDAPS
+      - permit tcp any object-group Domain-Controllers-OGP eq 636
+      # PERMIT NTP
+      - permit udp any host 10.0.2.20 eq ntp
+      # PERMIT SMTP for endpoint notifications
+      - permit tcp any host 10.0.2.101 eq smtp
+      # PERMIT all traffic to administrative hosts
+      - permit ip any object-group Jumpboxes-OGP
+      # DENY all other access to the servers subnet
+      - deny   ip any 10.0.2.0 0.0.0.255
+      # DENY access to UC management
+      - deny   ip any 10.0.4.0 0.0.0.255
+      # PERMIT all other traffic
+      - permit ip any any
+    parents: ip access-list extended BldgMgmt-ACL
+    before: no ip access-list extended BldgMgmt-ACL
+    match: exact
+
+...

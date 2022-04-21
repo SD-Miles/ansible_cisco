@@ -1,0 +1,39 @@
+---
+
+- name: Define Domain-Controllers-OGP
+  cisco.ios.ios_config:
+    lines:
+      - host 10.0.2.74
+      - host 10.0.2.75
+      - host 10.0.2.76
+    parents: object-group network Domain-Controllers-OGP
+    before: no object-group network Domain-Controllers-OGP
+    match: exact
+
+- name: Define Jumpboxes-OGP
+  cisco.ios.ios_config:
+    lines:
+      - host 10.0.2.110
+      - host 10.0.2.115
+      - host 10.0.2.116
+      - host 10.0.2.117
+      - host 10.0.2.38
+      - host 10.0.2.20
+    parents: object-group network Jumpboxes-OGP
+    before: no object-group network Jumpboxes-OGP
+    match: exact
+
+- name: Define BldgMgmt-Subnets-OGP
+  cisco.ios.ios_config:
+    lines:
+      - 10.10.1.0 255.255.255.0
+      - 10.20.1.0 255.255.255.0
+      - 10.30.1.0 255.255.255.0
+      - 10.40.1.0 255.255.255.0
+      - 10.50.1.0 255.255.255.0
+      - 10.60.1.0 255.255.255.0
+    parents: object-group network BldgMgmt-Subnets-OGP
+    before: no object-group network BldgMgmt-Subnets-OGP
+    match: exact
+
+...

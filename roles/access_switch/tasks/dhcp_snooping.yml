@@ -1,0 +1,10 @@
+---
+
+- name: Configure DHCP snooping
+  cisco.ios.ios_config:
+    lines: 
+      - ip dhcp snooping vlan 1-999
+      - no ip dhcp snooping information option
+      - ip dhcp snooping
+
+...

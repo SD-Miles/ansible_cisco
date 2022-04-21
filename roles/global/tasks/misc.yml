@@ -1,0 +1,87 @@
+---
+# NON-IDEMPOTENT items will appear as "changed" every time, no matter what
+
+- name: Configure password encryption
+  cisco.ios.ios_config:
+    lines:
+      - service password-encryption
+      - password encryption aes
+
+- name: NON-IDEMPOTENT - Configure enable secret 
+  cisco.ios.ios_config:
+    lines:
+      - enable secret LTmJF5OaIhsA
+
+- name: Configure DNS servers
+  cisco.ios.ios_system:
+    name_servers:
+      - 10.0.2.74
+      - 10.0.2.75
+
+- name: Configure clock
+  cisco.ios.ios_config:
+    lines:
+      - ntp server ntp.efrafa.net
+      - clock timezone EST -5 0
+
+- name: Configure authentication
+  cisco.ios.ios_config:
+    lines:
+      - aaa new-model
+      - aaa authentication login default local
+      - aaa authorization exec default local if-authenticated
+
+- name: Configure logging
+  cisco.ios.ios_config:
+    lines:
+      - no logging console
+      - logging trap errors
+      - login on-success log
+      - login on-failure log
+      - logging buffered 40960
+
+- name: Configure network protocols
+  cisco.ios.ios_config:
+    lines:
+      - ip ssh version 2
+      - ip scp server enable
+      - no ip http server
+      - no ip http secure-server
+      - lldp run
+      - no cdp run
+      
+- name: NON-IDEMPOTENT - Configure VTY
+  cisco.ios.ios_config:
+    lines:
+      - exec-timeout 5 0
+      - logging synchronous
+      - transport input ssh
+      - login authentication default
+    parents: line vty 0 4
+
+- name: Configure the login banner
+  cisco.ios.ios_banner:
+    banner: login
+    text: |
+      **********************************************************************
+                         EFRAFA SCHOOL DISTRICT
+      **********************************************************************
+      WARNING: This system is for the use of authorized clients only.
+      Individuals using the computer network system without authorization,
+      or in excess of their authorization, are subject to having all their
+      activity on this computer network system monitored and recorded by
+      system personnel. To protect the computer network system from
+      unauthorized use and to ensure the computer network system is
+      functioning properly, system administrators monitor this system.
+
+      Anyone using this computer network system expressly consents to such
+      monitoring and is advised that if such monitoring reveals possible
+      conduct of criminal activity, system personnel may provide the
+      evidence of such activity to law enforcement officers.
+
+      Access is restricted to authorized users only. Unauthorized access is
+      a violation of state and federal, civil and criminal laws.
+      **********************************************************************
+    state: present
+
+...

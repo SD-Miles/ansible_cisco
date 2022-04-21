@@ -1,0 +1,21 @@
+---
+# Configuration common to all Cisco network hardware
+
+- name: Apply miscellaneous global network configuration
+  import_tasks: misc.yml
+
+- name: Apply SNMP configuration
+  import_tasks: snmp.yml
+
+- name: Create and configure users
+  import_tasks: users.yml
+
+# Save config after all tasks have been applied
+- name: Save config
+  cisco.ios.ios_command:
+    commands:
+      - command: 'write memory'
+        prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+        answer: "\r"
+
+...

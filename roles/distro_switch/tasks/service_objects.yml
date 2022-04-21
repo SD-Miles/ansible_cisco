@@ -1,0 +1,81 @@
+---
+
+- name: Define AD-Client-SGP
+  cisco.ios.ios_config:
+    lines:
+      - udp eq domain
+      - tcp eq domain
+      - udp eq 88
+      - tcp eq 88
+      - udp eq 464
+      - tcp eq 464
+      - tcp range 3268 3269
+      - udp eq 445
+      - tcp eq 445
+      - udp eq 135
+      - tcp eq msrpc
+      - udp range 49152 65535
+      - tcp range 49152 65535
+      - udp eq 636
+      - tcp eq 636
+      - udp eq 389
+      - tcp eq 389
+      - udp eq ntp
+    parents: object-group service AD-Client-SGP
+    before: no object-group service AD-Client-SGP
+    match: exact
+
+- name: Define Cert-Enrollment-SGP
+  cisco.ios.ios_config:
+    lines:
+      - tcp eq www
+      - tcp eq 443
+      - udp eq 135
+      - tcp eq msrpc
+      - udp range 49152 65535
+      - tcp range 49152 65535
+    parents: object-group service Cert-Enrollment-SGP
+    before: no object-group service Cert-Enrollment-SGP
+    match: exact
+
+- name: Define DNS-SGP
+  cisco.ios.ios_config:
+    lines:
+      - udp eq domain
+      - tcp eq domain
+    parents: object-group service DNS-SGP
+    before: no object-group service DNS-SGP
+    match: exact
+
+- name: Define Web-Services-SGP
+  cisco.ios.ios_config:
+    lines:
+      - tcp eq www
+      - tcp eq 443
+    parents: object-group service Web-Services-SGP
+    before: no object-group service Web-Services-SGP
+    match: exact
+
+- name: Define Jumpbox-SGP
+  cisco.ios.ios_config:
+    lines:
+      - udp eq 3389
+      - tcp eq 3389
+      - tcp eq 445
+      - tcp eq 22
+    parents: object-group service Jumpbox-SGP
+    before: no object-group service Jumpbox-SGP
+    match: exact
+
+- name: Define Print-Server-SGP
+  cisco.ios.ios_config:
+    lines:
+      - udp eq 445
+      - tcp eq 445
+      - udp range 49152 65535
+      - tcp range 49152 65535
+    parents: object-group service Print-Server-SGP
+    before: no object-group service Print-Server-SGP
+    match: exact
+
+...

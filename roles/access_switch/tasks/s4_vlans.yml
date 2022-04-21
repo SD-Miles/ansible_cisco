@@ -1,0 +1,29 @@
+---
+
+- name: Configure Site 4 VLANs
+  cisco.ios.ios_vlans:
+    config:
+    - name: S4_Mgmt
+      vlan_id: 401
+      state: active
+    - name: S4_Inline
+      vlan_id: 402
+      state: active
+    - name: S4_Cameras
+      vlan_id: 403
+      state: active
+    - name: S4_WAPs
+      vlan_id: 404
+      state: active
+    - name: S4_Phones
+      vlan_id: 407
+      state: active
+    - name: S4_Relay
+      vlan_id: 408
+      state: active
+    - name: S4_Guest
+      vlan_id: 416
+      state: active
+    state: overridden
+    
+...

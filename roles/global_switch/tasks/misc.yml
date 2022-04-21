@@ -1,0 +1,23 @@
+---
+
+- name: Configure domain
+  cisco.ios.ios_system:
+    domain_name: efrafa.net
+
+- name: Configure switching settings
+  cisco.ios.ios_config:
+    lines: spanning-tree mode rapid-pvst
+
+- name: Disable VLAN 1 SVI
+  cisco.ios.ios_config:
+    lines: shutdown
+    parents: interface Vlan1
+
+- name: NON-IDEMPOTENT - Discard MAC flap logging
+  cisco.ios.ios_config:
+    lines:
+      - logging discriminator NoMacFlp msg-body drops is moving from port|is flapping between
+      - logging buffered discriminator NoMacFlp
+      - logging monitor discriminator NoMacFlp
+
+...

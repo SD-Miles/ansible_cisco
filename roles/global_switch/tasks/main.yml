@@ -1,0 +1,14 @@
+---
+
+- name: Apply miscellaneous switch configuration
+  import_tasks: misc.yml
+
+# Save config after all tasks have been applied
+- name: Save config
+  cisco.ios.ios_command:
+    commands:
+      - command: 'write memory'
+        prompt: 'Do you want to overwrite the startup-configuration?[confirm]'
+        answer: "\r"
+
+...

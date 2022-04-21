@@ -1,0 +1,28 @@
+---
+
+- name: Register the Guest VLAN number
+  cisco.ios.ios_command:
+    commands: 'show vlan | include Guest'
+  register: guest_vlan
+
+- name: Register the Camera VLAN number
+  cisco.ios.ios_command:
+    commands: 'show vlan | include Cameras'
+  register: camera_vlan
+
+- name: Register the Relay VLAN number
+  cisco.ios.ios_command:
+    commands: 'show vlan | include Relay'
+  register: relay_vlan
+
+- name: Register the Inline VLAN number
+  cisco.ios.ios_command:
+    commands: 'show vlan | include Inline'
+  register: inline_vlan
+
+- name: Register the Mgmt VLAN number
+  cisco.ios.ios_command:
+    commands: 'show vlan | include (1   ...Mgmt)'
+  register: mgmt_vlan
+
+...
