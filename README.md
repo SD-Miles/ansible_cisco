@@ -1,11 +1,11 @@
 Ansible Roles and Plays for Cisco Network Hardware
 ==================================================
-This Is Not Production Code!
+This is not production code!
 ----------------------------
 
 This repository is for DEMONSTRATION ONLY, and is intended to illustrate how I use Ansible to manage an enterprise network environment. While informed by the needs and choices of my professional production environment, this repository reflects an independent lab environment, with invented IP schema, hostnames, keys, and other details. Additionally, the network architecture here is significantly simpler that what we run in production, and was built to illustrate concepts and examples of how to solve problems rather than trying to recreate every use case of a live environment.
 
-Network Topology
+Network topology
 ----------------
 
 This demonstration code is written for a simple, three-tier hub/spoke topology with six physical sites, like this:
