@@ -20,6 +20,7 @@ Each site has the following VLANs, each of which is assigned a unique ID tag:
   - Guest
   - Management
   - Surveillance Cameras
+
 Each of subnets associated with these VLANs has a detailed access control list to police traffic at the site's distribution switch. Accordingly, these ACLs are defined in the Ansible "distro_switch" role.
 
 Provisioning
@@ -43,10 +44,14 @@ Ansible connects to the network hardware by means of a service account called `a
 Using this repository
 ---------------------
 
-The global configuration state of the network is defined by the Ansible roles in this repository. Hostnames and host groups are defined in the inventory file, and each role is written to run against only the hostnames or groups that require it. This means you can safely execute all roles against all hardware thus:
+The global configuration state of the network is defined by the Ansible roles in this repository. Hostnames and host groups are defined in the inventory file, and the root playbook called "network_state.yml" matches each role to the hostnames or groups that require it. This means you can safely execute all roles against all hardware thus:
 
     ansible-playbook network_state.yml -i network_inventory
 
 Append `-l <hostname>` to limit the execution to a single host.
 
-The `plays` and directory contains tasks rather than state configuration. They are intended to automate maintenance procedures; for example, `upgrade_ios.yml`. You would obviously not want to execute this play every time you make a global configuration change.
+The `plays` and directory contains tasks rather than state configuration. They are intended to automate maintenance procedures; for example, `upgrade_ios.yml`. You would obviously not want to execute this play every time you make a global configuration change, so you should run them individually, like so:
+
+    ansible-playbook plays/upgrade_ios.yml -i network_inventory
+
+
